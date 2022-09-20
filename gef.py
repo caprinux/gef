@@ -1180,7 +1180,6 @@ class Instruction:
 def search_for_main_arena() -> int:
     """A helper function to find the libc `main_arena` address, either from symbol or from its offset
     from `__malloc_hook`."""
-    breakpoint()
     try:
         addr = parse_address(f"&{LIBC_HEAP_MAIN_ARENA_DEFAULT_NAME}")
 
