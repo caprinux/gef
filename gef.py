@@ -1180,6 +1180,7 @@ class Instruction:
 def search_for_main_arena() -> int:
     """A helper function to find the libc `main_arena` address, either from symbol or from its offset
     from `__malloc_hook`."""
+    breakpoint()
     try:
         addr = parse_address(f"&{LIBC_HEAP_MAIN_ARENA_DEFAULT_NAME}")
 
@@ -1189,7 +1190,11 @@ def search_for_main_arena() -> int:
         struct_size = ctypes.sizeof(GlibcArena.malloc_state_t())
 
         if is_x86():
-            addr = align_address_to_size(malloc_hook_addr + gef.arch.ptrsize, 0x20)
+            if gef.libc.version[0] == 2 and gef.libc.version[1] >= 36:
+                io_stdin_addr = parse_address("(void *)&_IO_2_1_stdin_")
+                addr = io_stdin_addr + 480
+            else:
+                addr = align_address_to_size(malloc_hook_addr + gef.arch.ptrsize, 0x20)
         elif is_arch(Elf.Abi.AARCH64):
             addr = malloc_hook_addr - gef.arch.ptrsize*2 - struct_size
         elif is_arch(Elf.Abi.ARM):
